@@ -1,8 +1,10 @@
+import Header from "@/components/landing_page/Header";
 import Hero from "@/components/landing_page/Hero";
 
 export default function Home() {
   return (
-   <div>
+   <div className="relative w-full overflow-x-hidden min-h-screen">
+    <Header />
     <Hero />
    </div>
   );
