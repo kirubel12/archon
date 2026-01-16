@@ -1,8 +1,9 @@
+import Hero from "@/components/landing_page/Hero";
 
 export default function Home() {
   return (
    <div>
-    <h1>Archon</h1>
+    <Hero />
    </div>
   );
 }
