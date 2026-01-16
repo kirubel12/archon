@@ -3,7 +3,7 @@ import { Button } from "../ui/button"
 
 const Hero = () => {
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-black text-white flex flex-col items-center justify-center">
+    <div id="home" className="relative min-h-screen w-full overflow-hidden bg-black text-white flex flex-col items-center justify-center">
         <div className="absolute inset-0">
             <DarkVeil />
         </div>

@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/purity */
 "use client"
 import React, { useRef, useEffect, useState } from 'react';
+import Link from 'next/link';
 
 interface GooeyNavItem {
   label: string;
@@ -99,11 +100,11 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
     Object.assign(textRef.current.style, styles);
     textRef.current.innerText = element.innerText;
   };
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, index: number) => {
-    const liEl = e.currentTarget;
+
+  const activateItem = (index: number, element: HTMLElement) => {
     if (activeIndex === index) return;
     setActiveIndex(index);
-    updateEffectPosition(liEl);
+    updateEffectPosition(element);
     if (filterRef.current) {
       const particles = filterRef.current.querySelectorAll('.particle');
       particles.forEach(p => filterRef.current!.removeChild(p));
@@ -117,18 +118,17 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
       makeParticles(filterRef.current);
     }
   };
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, index: number) => {
+    const liEl = e.currentTarget.closest('li') as HTMLElement | null;
+    activateItem(index, liEl ?? e.currentTarget);
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLAnchorElement>, index: number) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      const liEl = e.currentTarget.parentElement;
-      if (liEl) {
-        handleClick(
-          {
-            currentTarget: liEl
-          } as React.MouseEvent<HTMLAnchorElement>,
-          index
-        );
-      }
+      const liEl = e.currentTarget.closest('li') as HTMLElement | null;
+      activateItem(index, liEl ?? e.currentTarget);
     }
   };
   useEffect(() => {
@@ -306,14 +306,14 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
                   activeIndex === index ? 'active' : ''
                 }`}
               >
-                <a
+                <Link
                   href={item.href}
                   onClick={e => handleClick(e, index)}
                   onKeyDown={e => handleKeyDown(e, index)}
                   className="outline-none py-[0.6em] px-[1em] inline-block"
                 >
                   {item.label}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
@@ -327,14 +327,14 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
 
 const Header = () => {
     const navItems = [
-        { label: 'Problems', href: '#' },
-        { label: 'Features', href: '#' },
-        { label: 'How it works', href: '#' },
+        { label: 'Problems', href: '#problems' },
+        { label: 'Features', href: '#features' },
+        { label: 'How it works', href: '#how-it-works' },
     ];
 
     return (
         <header className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 md:px-12 md:py-6">
-            <div className="flex items-center gap-2 cursor-pointer">
+            <Link href="#home" className="flex items-center gap-2">
                 <div className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white">
                         <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -343,7 +343,7 @@ const Header = () => {
                     </svg>
                     Archon
                 </div>
-            </div>
+            </Link>
             
             <div className="hidden md:block">
                  <GooeyNav items={navItems} />
