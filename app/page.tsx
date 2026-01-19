@@ -2,6 +2,7 @@ import Header from "@/components/landing_page/Header";
 import Hero from "@/components/landing_page/Hero";
 import Problems from "@/components/landing_page/Problems";
 import Features from "@/components/landing_page/Features";
+import HowItWork from "@/components/landing_page/HowItWork";
 
 export default function Home() {
   return (
@@ -10,6 +11,7 @@ export default function Home() {
     <Hero />
     <Problems />
     <Features />
+    <HowItWork />
    </div>
   );
 }
