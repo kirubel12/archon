@@ -5,7 +5,9 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { Loader2, Check, User, Mail, Lock, FileType } from "lucide-react"
+import { useRouter } from "next/navigation"
 
+import { signUp } from "@/lib/auth-client"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -49,6 +51,7 @@ interface RegisterProps {
 
 const Register = ({ isOpen = true, onClose, onSwitchToLogin }: RegisterProps) => {
   const [isLoading, setIsLoading] = React.useState(false)
+  const router = useRouter()
 
   const getPasswordScore = React.useCallback((password: string) => {
     const checks = [
@@ -89,12 +92,26 @@ const Register = ({ isOpen = true, onClose, onSwitchToLogin }: RegisterProps) =>
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true)
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    
+    const { data, error } = await signUp.email({
+      email: values.email,
+      password: values.password,
+      name: values.fullName,
+    })
+    
     setIsLoading(false)
-    console.log(values)
+
+    if (error) {
+      form.setError("root", {
+        type: "manual",
+        message: error.message || "Failed to create account",
+      })
+      return
+    }
+
     // Handle success (e.g., close modal, redirect)
     if (onClose) onClose()
+    router.push("/dashboard")
   }
 
   const handleOpenChange = (open: boolean) => {
@@ -263,6 +280,12 @@ const Register = ({ isOpen = true, onClose, onSwitchToLogin }: RegisterProps) =>
                   />
                 </div>
               </div>
+
+              {form.formState.errors.root && (
+                <div className="text-[0.8rem] font-medium text-destructive">
+                  {form.formState.errors.root.message}
+                </div>
+              )}
 
               <Button
                 type="submit"

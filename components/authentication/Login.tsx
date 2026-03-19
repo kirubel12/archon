@@ -5,7 +5,9 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { Loader2, Mail, Lock } from "lucide-react"
+import { useRouter } from "next/navigation"
 
+import { signIn } from "@/lib/auth-client"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -40,6 +42,7 @@ interface LoginProps {
 
 const Login = ({ isOpen = true, onClose, onSwitchToRegister }: LoginProps) => {
   const [isLoading, setIsLoading] = React.useState(false)
+  const router = useRouter()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -52,12 +55,26 @@ const Login = ({ isOpen = true, onClose, onSwitchToRegister }: LoginProps) => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true)
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    
+    const { data, error } = await signIn.email({
+      email: values.email,
+      password: values.password,
+      rememberMe: values.rememberMe,
+    })
+    
     setIsLoading(false)
-    console.log(values)
+
+    if (error) {
+      form.setError("root", {
+        type: "manual",
+        message: error.message || "Invalid credentials",
+      })
+      return
+    }
+
     // Handle success (e.g., close modal, redirect)
     if (onClose) onClose()
+    router.push("/dashboard")
   }
 
   const handleOpenChange = (open: boolean) => {
@@ -160,6 +177,12 @@ const Login = ({ isOpen = true, onClose, onSwitchToRegister }: LoginProps) => {
                   Forgot password?
                 </a>
               </div>
+
+              {form.formState.errors.root && (
+                <div className="text-[0.8rem] font-medium text-destructive">
+                  {form.formState.errors.root.message}
+                </div>
+              )}
 
               <Button
                 type="submit"
