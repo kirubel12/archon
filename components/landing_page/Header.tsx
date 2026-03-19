@@ -2,6 +2,9 @@
 "use client"
 import React, { useRef, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { Button } from '../ui/button';
+import Register from '../authentication/Register';
+import Login from '../authentication/Login';
 
 interface GooeyNavItem {
   label: string;
@@ -16,7 +19,7 @@ export interface GooeyNavProps {
   particleR?: number;
   timeVariance?: number;
   colors?: number[];
-  initialActiveIndex?: number;
+  initialActiveIndex?: number | null;
 }
 
 const GooeyNav: React.FC<GooeyNavProps> = ({
@@ -27,13 +30,13 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
   particleR = 100,
   timeVariance = 300,
   colors = [1, 2, 3, 1, 2, 3, 1, 4],
-  initialActiveIndex = 0
+  initialActiveIndex = null
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLUListElement>(null);
   const filterRef = useRef<HTMLSpanElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
-  const [activeIndex, setActiveIndex] = useState<number>(initialActiveIndex);
+  const [activeIndex, setActiveIndex] = useState<number | null>(initialActiveIndex);
 
   const noise = (n = 1) => n / 2 - Math.random() * n;
   const getXY = (distance: number, pointIndex: number, totalPoints: number): [number, number] => {
@@ -133,12 +136,14 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
   };
   useEffect(() => {
     if (!navRef.current || !containerRef.current) return;
+    if (activeIndex === null) return;
     const activeLi = navRef.current.querySelectorAll('li')[activeIndex] as HTMLElement;
     if (activeLi) {
       updateEffectPosition(activeLi);
       textRef.current?.classList.add('active');
     }
     const resizeObserver = new ResizeObserver(() => {
+      if (activeIndex === null) return;
       const currentActiveLi = navRef.current?.querySelectorAll('li')[activeIndex] as HTMLElement;
       if (currentActiveLi) {
         updateEffectPosition(currentActiveLi);
@@ -293,7 +298,7 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
         <nav className="flex relative" style={{ transform: 'translate3d(0,0,0.01px)' }}>
           <ul
             ref={navRef}
-            className="flex gap-8 list-none p-0 px-4 m-0 relative z-[3]"
+            className="flex gap-8 list-none p-0 px-4 m-0 relative z-3"
             style={{
               color: 'white',
               textShadow: '0 1px 1px hsl(205deg 30% 10% / 0.2)'
@@ -330,11 +335,15 @@ const Header = () => {
         { label: 'Problems', href: '#problems' },
         { label: 'Features', href: '#features' },
         { label: 'How it works', href: '#how-it-works' },
+        
     ];
+
+    const [showRegister, setShowRegister] = useState(false)
+    const [showLogin, setShowLogin] = useState(false)
 
     return (
         <header className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 md:px-12 md:py-6">
-            <Link href="#home" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2">
                 <div className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white">
                         <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -345,9 +354,19 @@ const Header = () => {
                 </div>
             </Link>
             
-            <div className="hidden md:block">
+            <div className="hidden md:flex items-center gap-6">
                  <GooeyNav items={navItems} />
+                 <Button 
+                    variant="default" 
+                    onClick={() => setShowRegister(true)}
+
+                 >
+                    Create an account
+                 </Button>
             </div>
+
+            <Register isOpen={showRegister} onClose={() => setShowRegister(false)} onSwitchToLogin={() => { setShowRegister(false); setShowLogin(true) }} />
+            <Login isOpen={showLogin} onClose={() => setShowLogin(false)} onSwitchToRegister={() => { setShowLogin(false); setShowRegister(true) }} />
 
             <div className="md:hidden">
                 {/* Simple mobile menu icon placeholder */}

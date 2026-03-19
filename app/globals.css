@@ -121,6 +121,32 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
+@layer base {
+  body {
+    background-image:
+      radial-gradient(900px circle at 15% 10%, color-mix(in oklab, var(--primary) 18%, transparent) 0%, transparent 60%),
+      radial-gradient(900px circle at 85% 20%, color-mix(in oklab, var(--chart-1) 16%, transparent) 0%, transparent 55%),
+      radial-gradient(900px circle at 50% 95%, color-mix(in oklab, var(--ring) 12%, transparent) 0%, transparent 55%);
+    background-attachment: fixed;
+  }
+}
+
+@layer utilities {
+  .auth-glass {
+    @apply bg-background/70 backdrop-blur-xl border border-border/60 shadow-2xl;
+  }
+
+  .auth-glow {
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--border) 55%, transparent),
+      0 18px 60px color-mix(in oklab, var(--primary) 18%, transparent);
+  }
+
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
   }
 }
