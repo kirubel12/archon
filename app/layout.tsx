@@ -1,18 +1,19 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 
 const poppins = Poppins({
   subsets: ["latin"],
-  weight: ['400', '600', '900']
+  weight: ["400", "600", "900"],
+  display: "swap",
 });
-
-
 
 export const metadata: Metadata = {
   title: "Archon",
-  description: "Archon is a web application that helps you manage your tasks and projects.",
+  description:
+    "Archon is the AI-native Technical Architect that turns PRDs into verified roadmaps.",
 };
 
 export default function RootLayout({
@@ -21,11 +22,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${poppins.className} antialiased`}
-      >
-       <ThemeProvider
+    <ClerkProvider>
+      <html lang="en" suppressHydrationWarning>
+        <body className={`${poppins.className} antialiased`}>
+          <ThemeProvider
             attribute="class"
             defaultTheme="dark"
             enableSystem
@@ -33,7 +33,8 @@ export default function RootLayout({
           >
             {children}
           </ThemeProvider>
-      </body>
-    </html>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

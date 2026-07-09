@@ -1,332 +1,143 @@
 /* eslint-disable react-hooks/purity */
 "use client"
-import React, { useRef, useEffect, useState } from 'react';
+import { SignInButton, SignUpButton, useAuth, UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
+import React, { useEffect, useRef, useState } from 'react';
+import ThemeToggle from '../ThemeToggle';
 import { Button } from '../ui/button';
-import Register from '../authentication/Register';
-import Login from '../authentication/Login';
 
-interface GooeyNavItem {
+interface SlidingNavItem {
   label: string;
   href: string;
 }
 
-export interface GooeyNavProps {
-  items: GooeyNavItem[];
-  animationTime?: number;
-  particleCount?: number;
-  particleDistances?: [number, number];
-  particleR?: number;
-  timeVariance?: number;
-  colors?: number[];
+export interface SlidingNavProps {
+  items: SlidingNavItem[];
   initialActiveIndex?: number | null;
+  homeSelector?: string;
 }
 
-const GooeyNav: React.FC<GooeyNavProps> = ({
+const SlidingNav: React.FC<SlidingNavProps> = ({
   items,
-  animationTime = 600,
-  particleCount = 15,
-  particleDistances = [90, 10],
-  particleR = 100,
-  timeVariance = 300,
-  colors = [1, 2, 3, 1, 2, 3, 1, 4],
-  initialActiveIndex = null
+  initialActiveIndex = null,
+  homeSelector = '#home'
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const navRef = useRef<HTMLUListElement>(null);
-  const filterRef = useRef<HTMLSpanElement>(null);
-  const textRef = useRef<HTMLSpanElement>(null);
+  const navRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState<number | null>(initialActiveIndex);
 
-  const noise = (n = 1) => n / 2 - Math.random() * n;
-  const getXY = (distance: number, pointIndex: number, totalPoints: number): [number, number] => {
-    const angle = ((360 + noise(8)) / totalPoints) * pointIndex * (Math.PI / 180);
-    return [distance * Math.cos(angle), distance * Math.sin(angle)];
-  };
-  const createParticle = (i: number, t: number, d: [number, number], r: number) => {
-    const rotate = noise(r / 10);
-    return {
-      start: getXY(d[0], particleCount - i, particleCount),
-      end: getXY(d[1] + noise(7), particleCount - i, particleCount),
-      time: t,
-      scale: 1 + noise(0.2),
-      color: colors[Math.floor(Math.random() * colors.length)],
-      rotate: rotate > 0 ? (rotate + r / 20) * 10 : (rotate - r / 20) * 10
-    };
-  };
-  const makeParticles = (element: HTMLElement) => {
-    const d: [number, number] = particleDistances;
-    const r = particleR;
-    const bubbleTime = animationTime * 2 + timeVariance;
-    element.style.setProperty('--time', `${bubbleTime}ms`);
-    for (let i = 0; i < particleCount; i++) {
-      const t = animationTime * 2 + noise(timeVariance * 2);
-      const p = createParticle(i, t, d, r);
-      element.classList.remove('active');
-      setTimeout(() => {
-        const particle = document.createElement('span');
-        const point = document.createElement('span');
-        particle.classList.add('particle');
-        particle.style.setProperty('--start-x', `${p.start[0]}px`);
-        particle.style.setProperty('--start-y', `${p.start[1]}px`);
-        particle.style.setProperty('--end-x', `${p.end[0]}px`);
-        particle.style.setProperty('--end-y', `${p.end[1]}px`);
-        particle.style.setProperty('--time', `${p.time}ms`);
-        particle.style.setProperty('--scale', `${p.scale}`);
-        particle.style.setProperty('--color', `var(--color-${p.color}, white)`);
-        particle.style.setProperty('--rotate', `${p.rotate}deg`);
-        point.classList.add('point');
-        particle.appendChild(point);
-        element.appendChild(particle);
-        requestAnimationFrame(() => {
-          element.classList.add('active');
-        });
-        setTimeout(() => {
-          try {
-            element.removeChild(particle);
-          } catch {}
-        }, t);
-      }, 30);
-    }
-  };
-  const updateEffectPosition = (element: HTMLElement) => {
-    if (!containerRef.current || !filterRef.current || !textRef.current) return;
-    const containerRect = containerRef.current.getBoundingClientRect();
-    const pos = element.getBoundingClientRect();
-    const styles = {
-      left: `${pos.x - containerRect.x}px`,
-      top: `${pos.y - containerRect.y}px`,
-      width: `${pos.width}px`,
-      height: `${pos.height}px`
-    };
-    Object.assign(filterRef.current.style, styles);
-    Object.assign(textRef.current.style, styles);
-    textRef.current.innerText = element.innerText;
-  };
-
-  const activateItem = (index: number, element: HTMLElement) => {
-    if (activeIndex === index) return;
-    setActiveIndex(index);
-    updateEffectPosition(element);
-    if (filterRef.current) {
-      const particles = filterRef.current.querySelectorAll('.particle');
-      particles.forEach(p => filterRef.current!.removeChild(p));
-    }
-    if (textRef.current) {
-      textRef.current.classList.remove('active');
-      void textRef.current.offsetWidth;
-      textRef.current.classList.add('active');
-    }
-    if (filterRef.current) {
-      makeParticles(filterRef.current);
-    }
-  };
-
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, index: number) => {
-    const liEl = e.currentTarget.closest('li') as HTMLElement | null;
-    activateItem(index, liEl ?? e.currentTarget);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLAnchorElement>, index: number) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      const liEl = e.currentTarget.closest('li') as HTMLElement | null;
-      activateItem(index, liEl ?? e.currentTarget);
-    }
-  };
   useEffect(() => {
-    if (!navRef.current || !containerRef.current) return;
-    if (activeIndex === null) return;
-    const activeLi = navRef.current.querySelectorAll('li')[activeIndex] as HTMLElement;
-    if (activeLi) {
-      updateEffectPosition(activeLi);
-      textRef.current?.classList.add('active');
-    }
-    const resizeObserver = new ResizeObserver(() => {
-      if (activeIndex === null) return;
-      const currentActiveLi = navRef.current?.querySelectorAll('li')[activeIndex] as HTMLElement;
-      if (currentActiveLi) {
-        updateEffectPosition(currentActiveLi);
+    const sections = items
+      .map(item => document.querySelector(item.href))
+      .filter((el): el is Element => el !== null);
+    const home = homeSelector ? document.querySelector(homeSelector) : null;
+    if (sections.length === 0 && !home) return;
+
+    const visible = new Map<Element, number>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            visible.set(entry.target, entry.intersectionRatio);
+          } else {
+            visible.delete(entry.target);
+          }
+        });
+
+        if (home && visible.has(home)) {
+          setActiveIndex(null);
+          return;
+        }
+
+        let best: Element | null = null;
+        let bestRatio = 0;
+        visible.forEach((ratio, el) => {
+          if (ratio > bestRatio) {
+            bestRatio = ratio;
+            best = el;
+          }
+        });
+
+        if (best) {
+          const idx = sections.indexOf(best);
+          if (idx !== -1) setActiveIndex(idx);
+        }
+      },
+      { threshold: [0.1, 0.25, 0.5, 0.75], rootMargin: '-20% 0px -35% 0px' }
+    );
+
+    sections.forEach(s => observer.observe(s));
+    if (home) observer.observe(home);
+
+    return () => observer.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, homeSelector]);
+
+  const pillRef = useRef<HTMLSpanElement>(null);
+
+  const movePill = React.useCallback(
+    (index: number | null) => {
+      const root = navRef.current;
+      const pill = pillRef.current;
+      if (!root || !pill) return;
+      const li = root.querySelectorAll('li')[index ?? -1] as HTMLElement | undefined;
+      if (!li) {
+        pill.style.opacity = '0';
+        return;
       }
-    });
-    resizeObserver.observe(containerRef.current);
+      const rootRect = root.getBoundingClientRect();
+      const liRect = li.getBoundingClientRect();
+      pill.style.opacity = '1';
+      pill.style.transform = `translateX(${liRect.left - rootRect.left}px)`;
+      pill.style.width = `${liRect.width}px`;
+    },
+    []
+  );
+
+  useEffect(() => {
+    movePill(activeIndex);
+  }, [activeIndex, movePill]);
+
+  useEffect(() => {
+    const root = navRef.current;
+    if (!root) return;
+    const resizeObserver = new ResizeObserver(() => movePill(activeIndex));
+    resizeObserver.observe(root);
     return () => resizeObserver.disconnect();
-  }, [activeIndex]);
+  }, [activeIndex, movePill]);
+
+  const handleClick = (index: number) => {
+    setActiveIndex(index);
+  };
 
   return (
-    <>
-      {/* This effect is quite difficult to recreate faithfully using Tailwind, so a style tag is a necessary workaround */}
-      <style>
-        {`
-          :root {
-            --linear-ease: linear(0, 0.068, 0.19 2.7%, 0.804 8.1%, 1.037, 1.199 13.2%, 1.245, 1.27 15.8%, 1.274, 1.272 17.4%, 1.249 19.1%, 0.996 28%, 0.949, 0.928 33.3%, 0.926, 0.933 36.8%, 1.001 45.6%, 1.013, 1.019 50.8%, 1.018 54.4%, 1 63.1%, 0.995 68%, 1.001 85%, 1);
-          }
-          .effect {
-            position: absolute;
-            opacity: 1;
-            pointer-events: none;
-            display: grid;
-            place-items: center;
-            z-index: 1;
-          }
-          .effect.text {
-            color: white;
-            transition: color 0.3s ease;
-          }
-          .effect.text.active {
-            color: black;
-          }
-          .effect.filter {
-            filter: blur(7px) contrast(100) blur(0);
-            mix-blend-mode: lighten;
-          }
-          .effect.filter::before {
-            content: "";
-            position: absolute;
-            inset: -30px;
-            z-index: -2;
-            background: transparent;
-          }
-          .effect.filter::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: white;
-            transform: scale(0);
-            opacity: 0;
-            z-index: -1;
-            border-radius: 9999px;
-          }
-          .effect.active::after {
-            animation: pill 0.3s ease both;
-          }
-          @keyframes pill {
-            to {
-              transform: scale(1);
-              opacity: 1;
-            }
-          }
-          .particle,
-          .point {
-            display: block;
-            opacity: 0;
-            width: 20px;
-            height: 20px;
-            border-radius: 9999px;
-            transform-origin: center;
-          }
-          .particle {
-            --time: 5s;
-            position: absolute;
-            top: calc(50% - 8px);
-            left: calc(50% - 8px);
-            animation: particle calc(var(--time)) ease 1 -350ms;
-          }
-          .point {
-            background: var(--color);
-            opacity: 1;
-            animation: point calc(var(--time)) ease 1 -350ms;
-          }
-          @keyframes particle {
-            0% {
-              transform: rotate(0deg) translate(calc(var(--start-x)), calc(var(--start-y)));
-              opacity: 1;
-              animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
-            }
-            70% {
-              transform: rotate(calc(var(--rotate) * 0.5)) translate(calc(var(--end-x) * 1.2), calc(var(--end-y) * 1.2));
-              opacity: 1;
-              animation-timing-function: ease;
-            }
-            85% {
-              transform: rotate(calc(var(--rotate) * 0.66)) translate(calc(var(--end-x)), calc(var(--end-y)));
-              opacity: 1;
-            }
-            100% {
-              transform: rotate(calc(var(--rotate) * 1.2)) translate(calc(var(--end-x) * 0.5), calc(var(--end-y) * 0.5));
-              opacity: 1;
-            }
-          }
-          @keyframes point {
-            0% {
-              transform: scale(0);
-              opacity: 0;
-              animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
-            }
-            25% {
-              transform: scale(calc(var(--scale) * 0.25));
-            }
-            38% {
-              opacity: 1;
-            }
-            65% {
-              transform: scale(var(--scale));
-              opacity: 1;
-              animation-timing-function: ease;
-            }
-            85% {
-              transform: scale(var(--scale));
-              opacity: 1;
-            }
-            100% {
-              transform: scale(0);
-              opacity: 0;
-            }
-          }
-          li.active {
-            color: black;
-            text-shadow: none;
-          }
-          li.active::after {
-            opacity: 1;
-            transform: scale(1);
-          }
-          li::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            border-radius: 8px;
-            background: white;
-            opacity: 0;
-            transform: scale(0);
-            transition: all 0.3s ease;
-            z-index: -1;
-          }
-        `}
-      </style>
-      <div className="relative" ref={containerRef}>
-        <nav className="flex relative" style={{ transform: 'translate3d(0,0,0.01px)' }}>
-          <ul
-            ref={navRef}
-            className="flex gap-8 list-none p-0 px-4 m-0 relative z-3"
-            style={{
-              color: 'white',
-              textShadow: '0 1px 1px hsl(205deg 30% 10% / 0.2)'
-            }}
-          >
-            {items.map((item, index) => (
-              <li
-                key={index}
-                className={`rounded-full relative cursor-pointer transition-[background-color_color_box-shadow] duration-300 ease shadow-[0_0_0.5px_1.5px_transparent] text-white ${
-                  activeIndex === index ? 'active' : ''
+    <div className="relative" ref={navRef}>
+      <span
+        ref={pillRef}
+        aria-hidden
+        className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 h-9 rounded-full bg-primary opacity-0 transition-[transform,width,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+      />
+      <ul className="flex gap-2 list-none p-0 m-0 relative">
+        {items.map((item, index) => {
+          const isActive = activeIndex === index;
+          return (
+            <li key={index} className="relative">
+              <Link
+                href={item.href}
+                onClick={() => handleClick(index)}
+                aria-current={isActive ? 'true' : undefined}
+                className={`relative z-10 inline-block rounded-full px-4 py-2 text-sm font-medium outline-none transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
+                  isActive
+                    ? 'text-primary-foreground'
+                    : 'text-foreground/70 hover:text-foreground'
                 }`}
               >
-                <Link
-                  href={item.href}
-                  onClick={e => handleClick(e, index)}
-                  onKeyDown={e => handleKeyDown(e, index)}
-                  className="outline-none py-[0.6em] px-[1em] inline-block"
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-        <span className="effect filter" ref={filterRef} />
-        <span className="effect text" ref={textRef} />
-      </div>
-    </>
+                {item.label}
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 };
 
@@ -335,17 +146,33 @@ const Header = () => {
         { label: 'Problems', href: '#problems' },
         { label: 'Features', href: '#features' },
         { label: 'How it works', href: '#how-it-works' },
-        
     ];
 
-    const [showRegister, setShowRegister] = useState(false)
-    const [showLogin, setShowLogin] = useState(false)
+    const { isSignedIn } = useAuth()
+
+    const [mounted, setMounted] = useState(false)
+    const [scrolled, setScrolled] = useState(false)
+
+    useEffect(() => {
+        setMounted(true)
+    }, [])
+
+    useEffect(() => {
+        const onScroll = () => setScrolled(window.scrollY > 16)
+        onScroll()
+        window.addEventListener('scroll', onScroll, { passive: true })
+        return () => window.removeEventListener('scroll', onScroll)
+    }, [])
 
     return (
-        <header className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 md:px-12 md:py-6">
-            <Link href="/" className="flex items-center gap-2">
-                <div className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white">
+        <header className={`sticky top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 md:px-8 md:py-3 transition-colors duration-300 ${
+            scrolled
+                ? 'bg-background backdrop-blur-xl shadow-sm shadow-black/5'
+                : 'bg-transparent'
+        }`}>
+            <Link href="/" className="flex items-center gap-2 animate-fade-in">
+                <div className="text-2xl font-bold text-foreground tracking-tight flex items-center gap-2">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-foreground">
                         <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -353,24 +180,41 @@ const Header = () => {
                     Archon
                 </div>
             </Link>
-            
-            <div className="hidden md:flex items-center gap-6">
-                 <GooeyNav items={navItems} />
-                 <Button 
-                    variant="default" 
-                    onClick={() => setShowRegister(true)}
 
-                 >
-                    Create an account
-                 </Button>
+             <div className="hidden md:flex items-center gap-6">
+                  <SlidingNav items={navItems} />
+
+
+
+                 {mounted && (
+                    <>
+                      <ThemeToggle />
+                      {isSignedIn ? (
+                        <>
+                          <Button variant="ghost" asChild>
+                            <Link href="/dashboard">Dashboard</Link>
+                          </Button>
+                          <UserButton />
+                        </>
+                      ) : (
+                        <>
+                          <SignInButton mode="redirect" forceRedirectUrl="/dashboard">
+                            <Button variant="ghost">Sign in</Button>
+                          </SignInButton>
+                          <SignUpButton mode="redirect" forceRedirectUrl="/dashboard">
+                            <Button variant="default">Create an account</Button>
+                          </SignUpButton>
+                        </>
+                      )}
+                    </>
+                  )}
             </div>
 
-            <Register isOpen={showRegister} onClose={() => setShowRegister(false)} onSwitchToLogin={() => { setShowRegister(false); setShowLogin(true) }} />
-            <Login isOpen={showLogin} onClose={() => setShowLogin(false)} onSwitchToRegister={() => { setShowLogin(false); setShowRegister(true) }} />
-
-            <div className="md:hidden">
-                {/* Simple mobile menu icon placeholder */}
-                <button className="text-white">
+            <div className="md:hidden flex items-center gap-4">
+                {mounted && (
+                   <ThemeToggle />
+                )}
+                <button className="text-foreground">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M3 12h18M3 6h18M3 18h18" />
                     </svg>

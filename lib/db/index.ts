@@ -1,10 +1,22 @@
-import { drizzle } from 'drizzle-orm/neon-http';
-import { neon } from '@neondatabase/serverless';
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import * as schema from "./schema";
 
-// Ensure DATABASE_URL is set before calling neon()
-if (!process.env.DATABASE_URL) {
-  console.warn("DATABASE_URL is not set. Drizzle ORM will fail to connect.");
+/**
+ * Supabase Postgres connection for Drizzle (typed queries / migrations).
+ * Prefer the Supabase JS clients in `lib/supabase/*` for most app reads/writes.
+ */
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  console.warn(
+    "DATABASE_URL is not set. Drizzle will fail until you add your Supabase Postgres URL."
+  );
 }
 
-const sql = neon(process.env.DATABASE_URL || "");
-export const db = drizzle(sql);
+const client = postgres(
+  connectionString || "postgresql://postgres:postgres@localhost:5432/postgres",
+  { prepare: false }
+);
+
+export const db = drizzle(client, { schema });

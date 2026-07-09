@@ -6,7 +6,7 @@ import HowItWork from "@/components/landing_page/HowItWork";
 
 export default function Home() {
   return (
-   <div className="relative w-full overflow-x-hidden min-h-screen">
+    <div className="relative w-full min-h-screen">
     <Header />
     <Hero />
     <Problems />

@@ -1,0 +1,6 @@
+{
+  "files": ["app/**/page.tsx"],
+  "insertBefore": "export default",
+  "commentSyntax": "//",
+  "cspChecked": true
+}

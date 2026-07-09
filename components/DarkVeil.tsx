@@ -82,6 +82,7 @@ type Props = {
   scanlineFrequency?: number;
   warpAmount?: number;
   resolutionScale?: number;
+  light?: boolean;
 };
 
 export default function DarkVeil({
@@ -91,7 +92,8 @@ export default function DarkVeil({
   speed = 0.5,
   scanlineFrequency = 0,
   warpAmount = 0,
-  resolutionScale = 1
+  resolutionScale = 1,
+  light = false
 }: Props) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
@@ -100,7 +102,8 @@ export default function DarkVeil({
 
     const renderer = new Renderer({
       dpr: Math.min(window.devicePixelRatio, 2),
-      canvas
+      canvas,
+      alpha: true
     });
 
     const gl = renderer.gl;
@@ -153,5 +156,19 @@ export default function DarkVeil({
       window.removeEventListener('resize', resize);
     };
   }, [hueShift, noiseIntensity, scanlineIntensity, speed, scanlineFrequency, warpAmount, resolutionScale]);
-  return <canvas ref={ref} className="w-full h-full block" />;
+    return (
+      <canvas
+        ref={ref}
+        className="w-full h-full block"
+        style={
+          light
+            ? {
+                mixBlendMode: "multiply",
+                opacity: 0.12,
+                filter: "saturate(0.4) brightness(1.6) contrast(0.9)"
+              }
+            : undefined
+        }
+      />
+    );
 }

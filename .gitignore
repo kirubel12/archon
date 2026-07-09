@@ -43,3 +43,7 @@ next-env.d.ts
 /.agents/
 /.agent/
 skills.lock.json
+/.codex/
+/.gemini/
+/.opencode/
+/.claude/
