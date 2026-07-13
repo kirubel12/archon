@@ -1,4 +1,4 @@
-import type { Project, ActivityItem, ChartDataPoint } from "./types"
+import type { Project, ActivityItem, ChartDataPoint, ActivitySummary, AIInsight } from "./types"
 
 export const mockProjects: Project[] = [
   {
@@ -150,11 +150,41 @@ export const mockActivity: ActivityItem[] = [
 ]
 
 export const mockChartData: ChartDataPoint[] = [
-  { name: "Mon", projects: 2 },
-  { name: "Tue", projects: 4 },
-  { name: "Wed", projects: 1 },
-  { name: "Thu", projects: 6 },
-  { name: "Fri", projects: 3 },
-  { name: "Sat", projects: 5 },
-  { name: "Sun", projects: 2 },
+  { name: "Mon", activity: 3 },
+  { name: "Tue", activity: 7 },
+  { name: "Wed", activity: 2 },
+  { name: "Thu", activity: 9 },
+  { name: "Fri", activity: 5 },
+  { name: "Sat", activity: 4 },
+  { name: "Sun", activity: 6 },
+]
+
+export const mockActivitySummary: ActivitySummary = {
+  prdsCreated: 12,
+  roadmapUpdates: 8,
+  aiWorkflows: 5,
+  progressChanges: 14,
+}
+
+export const mockAIInsights: AIInsight[] = [
+  {
+    id: "insight-1",
+    headline: "Planning phase is your bottleneck",
+    description:
+      "Your projects spend 60% of their time in the planning phase before any PRDs are completed. This delays downstream work and slows overall delivery.",
+    recommendations: [
+      "Complete the pending Design PRD for E-commerce Platform",
+      "Start AI Workflow PRD for Mobile API Gateway",
+    ],
+  },
+  {
+    id: "insight-2",
+    headline: "2 projects need attention",
+    description:
+      "Customer Portal v2 and Mobile API Gateway have been idle for 3+ days without updates. Unblock these to keep momentum.",
+    recommendations: [
+      "Create the initial PRD for Customer Portal v2",
+      "Review open requirements for Mobile API Gateway",
+    ],
+  },
 ]

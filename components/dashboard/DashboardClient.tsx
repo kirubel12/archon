@@ -2,11 +2,11 @@
 
 import type { Project } from "@/lib/dashboard/types"
 import { computeMetrics } from "@/lib/dashboard/types"
-import { mockProjects, mockChartData } from "@/lib/dashboard/mock-data"
+import { mockProjects, mockChartData, mockActivitySummary, mockAIInsights } from "@/lib/dashboard/mock-data"
 import { Plus } from "lucide-react"
 import { Button } from "../ui/button"
 import StatCards from "./StatCards"
-import ActivityChart from "./ActivityChart"
+import ActivityInsights from "./ActivityInsights"
 import ProjectRow from "./ProjectRow"
 
 export default function DashboardClient({ name }: { name: string }) {
@@ -26,7 +26,11 @@ export default function DashboardClient({ name }: { name: string }) {
 
       <StatCards metrics={metrics} />
 
-      <ActivityChart data={mockChartData} />
+      <ActivityInsights
+        chartData={mockChartData}
+        summary={mockActivitySummary}
+        insight={mockAIInsights[0]}
+      />
 
       <div>
         <div className="flex items-center justify-between">

@@ -50,7 +50,21 @@ export interface ActivityItem {
 
 export interface ChartDataPoint {
   name: string
-  projects: number
+  activity: number
+}
+
+export interface ActivitySummary {
+  prdsCreated: number
+  roadmapUpdates: number
+  aiWorkflows: number
+  progressChanges: number
+}
+
+export interface AIInsight {
+  id: string
+  headline: string
+  description: string
+  recommendations: string[]
 }
 
 export function getProjectMetrics(project: Project): {
