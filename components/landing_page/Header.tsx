@@ -1,9 +1,8 @@
-/* eslint-disable react-hooks/purity */
 "use client"
 import { SignInButton, SignUpButton, useAuth, UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
-import React, { useEffect, useRef, useState } from 'react';
-import ThemeToggle from '../ThemeToggle';
+import React, { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+
 import { Button } from '../ui/button';
 
 interface SlidingNavItem {
@@ -69,7 +68,6 @@ const SlidingNav: React.FC<SlidingNavProps> = ({
     if (home) observer.observe(home);
 
     return () => observer.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items, homeSelector]);
 
   const pillRef = useRef<HTMLSpanElement>(null);
@@ -150,12 +148,12 @@ const Header = () => {
 
     const { isSignedIn } = useAuth()
 
-    const [mounted, setMounted] = useState(false)
+    const mounted = useSyncExternalStore(
+        () => () => {},
+        () => true,
+        () => false,
+    )
     const [scrolled, setScrolled] = useState(false)
-
-    useEffect(() => {
-        setMounted(true)
-    }, [])
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 16)
@@ -186,9 +184,8 @@ const Header = () => {
 
 
 
-                 {mounted && (
+                  {mounted && (
                     <>
-                      <ThemeToggle />
                       {isSignedIn ? (
                         <>
                           <Button variant="ghost" asChild>
@@ -211,9 +208,6 @@ const Header = () => {
             </div>
 
             <div className="md:hidden flex items-center gap-4">
-                {mounted && (
-                   <ThemeToggle />
-                )}
                 <button className="text-foreground">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M3 12h18M3 6h18M3 18h18" />

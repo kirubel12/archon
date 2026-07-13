@@ -6,7 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 
 const poppins = Poppins({
   subsets: ["latin"],
-  weight: ["400", "600", "900"],
+  weight: ["300", "400", "500", "600", "700", "900"],
   display: "swap",
 });
 
@@ -28,7 +28,7 @@ export default function RootLayout({
           <ThemeProvider
             attribute="class"
             defaultTheme="dark"
-            enableSystem
+            forcedTheme="dark"
             disableTransitionOnChange
           >
             {children}
