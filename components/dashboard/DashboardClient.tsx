@@ -7,7 +7,7 @@ import { Plus } from "lucide-react"
 import { Button } from "../ui/button"
 import StatCards from "./StatCards"
 import ActivityInsights from "./ActivityInsights"
-import ProjectRow from "./ProjectRow"
+import ProjectRow from "../projects/ProjectRow"
 
 export default function DashboardClient({ name }: { name: string }) {
   const projects: Project[] = mockProjects

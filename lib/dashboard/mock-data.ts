@@ -1,4 +1,4 @@
-import type { Project, ActivityItem, ChartDataPoint, ActivitySummary, AIInsight } from "./types"
+import type { Project, ActivityItem, ChartDataPoint, ActivitySummary, AIInsight, ProjectDetailData } from "./types"
 
 export const mockProjects: Project[] = [
   {
@@ -188,3 +188,212 @@ export const mockAIInsights: AIInsight[] = [
     ],
   },
 ]
+
+export function mockProjectDetail(projectId: string): ProjectDetailData | undefined {
+  if (projectId !== "proj-1") return undefined
+
+  return {
+    phases: [
+      {
+        type: "general",
+        label: "General PRD",
+        status: "completed",
+        progress: 100,
+        startedAt: "2026-06-28T14:00:00Z",
+        completedAt: "2026-07-01T09:00:00Z",
+        dependencies: [],
+        deliverables: ["Product requirements document", "Stakeholder sign-off"],
+      },
+      {
+        type: "design",
+        label: "Design PRD",
+        status: "in_progress",
+        progress: 65,
+        startedAt: "2026-07-02T11:00:00Z",
+        dependencies: ["general"],
+        deliverables: ["Design system spec", "UI component library", "Prototype"],
+      },
+      {
+        type: "ai_workflow",
+        label: "AI Workflow",
+        status: "not_started",
+        progress: 0,
+        dependencies: ["design"],
+        deliverables: ["AI model specs", "Data pipeline design", "Training workflow"],
+      },
+      {
+        type: "tech_stack",
+        label: "Tech Stack",
+        status: "not_started",
+        progress: 0,
+        dependencies: ["ai_workflow"],
+        deliverables: ["Technology decisions", "Architecture diagram", "Migration plan"],
+      },
+    ],
+    activity: [
+      {
+        id: "evt-1",
+        type: "project_created",
+        description: "Project created",
+        timestamp: "2026-06-28T10:00:00Z",
+      },
+      {
+        id: "evt-2",
+        type: "prd_completed",
+        description: "Completed General PRD",
+        timestamp: "2026-07-01T09:00:00Z",
+      },
+      {
+        id: "evt-3",
+        type: "prd_started",
+        description: "Started Design PRD",
+        timestamp: "2026-07-02T11:00:00Z",
+      },
+      {
+        id: "evt-4",
+        type: "prd_completed",
+        description: "Completed PRD milestone review",
+        timestamp: "2026-07-04T14:00:00Z",
+      },
+      {
+        id: "evt-5",
+        type: "prd_completed",
+        description: "Updated Design PRD with stakeholder feedback",
+        timestamp: "2026-07-05T16:00:00Z",
+      },
+      {
+        id: "evt-6",
+        type: "prd_completed",
+        description: "Design PRD draft v2 committed",
+        timestamp: "2026-07-07T11:00:00Z",
+      },
+      {
+        id: "evt-7",
+        type: "prd_completed",
+        description: "Generated AI recommendations for design",
+        timestamp: "2026-07-09T10:00:00Z",
+      },
+      {
+        id: "evt-8",
+        type: "prd_started",
+        description: "Final review of Design PRD initiated",
+        timestamp: "2026-07-10T15:00:00Z",
+      },
+    ],
+    analytics: {
+      progressHistory: [
+        { date: "Jun 28", value: 0 },
+        { date: "Jun 30", value: 20 },
+        { date: "Jul 02", value: 25 },
+        { date: "Jul 04", value: 35 },
+        { date: "Jul 06", value: 40 },
+        { date: "Jul 08", value: 45 },
+        { date: "Jul 10", value: 50 },
+        { date: "Jul 12", value: 50 },
+        { date: "Jul 14", value: 50 },
+      ],
+      documentHistory: [
+        { date: "Jun 28", count: 1 },
+        { date: "Jun 30", count: 2 },
+        { date: "Jul 02", count: 3 },
+        { date: "Jul 04", count: 3 },
+        { date: "Jul 06", count: 4 },
+        { date: "Jul 08", count: 5 },
+        { date: "Jul 10", count: 5 },
+        { date: "Jul 12", count: 5 },
+        { date: "Jul 14", count: 5 },
+      ],
+      activityTrend: [
+        { date: "Mon", events: 2 },
+        { date: "Tue", events: 5 },
+        { date: "Wed", events: 1 },
+        { date: "Thu", events: 4 },
+        { date: "Fri", events: 3 },
+        { date: "Sat", events: 1 },
+        { date: "Sun", events: 0 },
+      ],
+    },
+    health: {
+      trend: "stable",
+      riskLevel: "low",
+      readinessScore: 72,
+      staleDocuments: 1,
+      blockers: [],
+    },
+    insights: [
+      {
+        type: "bottleneck",
+        headline: "Design PRD completion is the critical path",
+        description:
+          "The Design PRD has been in draft for 12 days. Completing it will unblock AI Workflow and Tech Stack phases, which account for 50% of total project scope.",
+        impact: "high",
+        actionLabel: "Complete Design PRD",
+      },
+      {
+        type: "recommendation",
+        headline: "AI Workflow dependencies are unresolved",
+        description:
+          "The AI Workflow phase depends on Design PRD deliverables. Consider starting preliminary research in parallel to reduce idle time.",
+        impact: "medium",
+        actionLabel: "View recommendations",
+      },
+      {
+        type: "optimization",
+        headline: "Documentation cadence is healthy",
+        description:
+          "You have generated 5 documents in 16 days. Maintaining this pace will complete the project within the estimated timeline.",
+        impact: "low",
+      },
+      {
+        type: "achievement",
+        headline: "First milestone achieved",
+        description:
+          "The General PRD was completed ahead of schedule. This strong start has built momentum for the remaining phases.",
+        impact: "low",
+      },
+    ],
+    assets: [
+      {
+        id: "asset-1",
+        type: "prd",
+        name: "Product Requirements Document",
+        status: "completed",
+        createdAt: "2026-07-01T09:00:00Z",
+        size: "2.4 MB",
+      },
+      {
+        id: "asset-2",
+        type: "design",
+        name: "Design System Specifications",
+        status: "draft",
+        createdAt: "2026-07-05T16:00:00Z",
+        size: "1.8 MB",
+      },
+      {
+        id: "asset-3",
+        type: "design",
+        name: "UI Component Library",
+        status: "draft",
+        createdAt: "2026-07-07T11:00:00Z",
+        size: "4.2 MB",
+      },
+      {
+        id: "asset-4",
+        type: "spec",
+        name: "Technical Architecture Overview",
+        status: "completed",
+        createdAt: "2026-07-03T10:00:00Z",
+        size: "892 KB",
+      },
+      {
+        id: "asset-5",
+        type: "export",
+        name: "PRD Export (PDF)",
+        status: "generated",
+        createdAt: "2026-07-10T10:00:00Z",
+        size: "3.1 MB",
+      },
+    ],
+    teamSize: 1,
+  }
+}
