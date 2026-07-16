@@ -8,6 +8,7 @@ const poppins = Poppins({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700", "900"],
   display: "swap",
+  variable: "--font-poppins",
 });
 
 export const metadata: Metadata = {
@@ -24,7 +25,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
-        <body className={`${poppins.className} antialiased`}>
+        <body className={`${poppins.variable} antialiased`}>
           <ThemeProvider
             attribute="class"
             defaultTheme="dark"
